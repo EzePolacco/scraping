@@ -1,0 +1,131 @@
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+------------------------------
+## Versión 1
+
+
+
+movie_name = []
+year_release = []
+runtime = []
+rating = []
+metascore = []
+votes = []
+gross = []
+page = 0
+
+url = "https://www.imdb.com/search/title/?count=100&groups=top_1000&sort=user_rating"
+page = requests.get(url)
+soup = BeautifulSoup(page.content, 'html.parser')
+all_movies = soup.find_all('div', attrs={'class':'lister-item mode-advanced'})
+
+
+for movie in all_movies:
+        name = movie.h3.a.text
+        movie_name.append(name)
+        year = movie.h3.find('span', class_= 'lister-item-year text-muted unbold').text.replace('(', "").replace(')', "")
+        year_release.append(year)
+        time = movie.p.find('span', class_='runtime').text.replace(' min', "")
+        runtime.append(time)
+        rate = movie.find('div', class_='inline-block ratings-imdb-rating').text.replace('\n', "")
+        rating.append(rate)
+        score = movie.find('span', class_='metascore').text.strip() if movie.find('span', class_='metascore') else 'No metascore'
+        metascore.append(score)
+        value = movie.find_all('span', attrs= {'name':'nv'})
+        vote = value[0].text
+        votes.append(vote)
+        gross_ = value[1].text if len(value) > 1 else ''
+        gross.append(gross_)
+        page =+1
+
+
+
+movies_imdb = pd.DataFrame({'Movie Name': movie_name, 
+                            'Release year': year, 
+                            'Duration (in minutes)': runtime,
+                            'Rating': rating, 
+                            'Metascore': metascore, 
+                            'Votes': votes, 
+                            'Gross': gross})
+print('Total pages scrapped: ',page)
+movies_imdb
+#movies_imdb.to_excel('movies_imdb.xlsx')
+
+
+
+---------------------------------------------------------------------
+
+## Versión 2 donde se modifica la url para agregarle un numerador. Funciona con los primeros 100 títulos, luego repite el proceso para los mismos títulos.
+
+paginas_total = 901
+pagina_actual = 1
+
+movie_name = []
+year_release = []
+runtime = []
+rating = []
+metascore = []
+votes = []
+gross = []
+#movies = []
+
+
+while pagina_actual <= paginas_total:
+    
+    # Indicar en la variable url, el enlace de la página a scrapear.
+    url_101 = f"https://www.imdb.com/search/title/?groups=top_1000&sort=user_rating,desc&count=100&start={pagina_actual}&ref_=adv_nxt"
+    url_actual = f"{url_101}{pagina_actual}"
+    page = requests.get(url_actual)
+    soup = BeautifulSoup(page.content, 'html.parser')
+    all_movies = soup.find_all('div', attrs={'class':'lister-item mode-advanced'})
+
+
+    for movie in all_movies:
+            name = movie.h3.a.text
+            movie_name.append(name)
+            year = movie.h3.find('span', class_= 'lister-item-year text-muted unbold').text.replace('(', "").replace(')', "")
+            year_release.append(year)
+            time = movie.p.find('span', class_='runtime').text.replace(' min', "")
+            runtime.append(time)
+            rate = movie.find('div', class_='inline-block ratings-imdb-rating').text.replace('\n', "")
+            rating.append(rate)
+            score = movie.find('span', class_='metascore').text.strip() if movie.find('span', class_='metascore') else 'No metascore'
+            metascore.append(score)
+            value = movie.find_all('span', attrs= {'name':'nv'})
+            vote = value[0].text
+            votes.append(vote)
+            gross_ = value[1].text if len(value) > 1 else ''
+            gross.append(gross_)
+            
+            pagina_actual += 100
+
+            
+
+movies_imdb2 = pd.DataFrame(
+
+    {
+        'Movie Name': movie_name, 
+        'Release year': year, 
+        'Duration (in minutes)': runtime,
+        'Rating': rating, 
+        'Metascore': metascore, 
+        'Votes': votes, 
+        'Gross': gross
+    })
+            
+            
+
+
+movies_imdb2
+movies
+
+
+
+
+
+
+
+
+
+

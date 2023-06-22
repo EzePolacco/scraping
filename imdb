@@ -14,11 +14,10 @@ votes = []
 gross = []
 
 
-
 while page_actual <= page_total:
     
-    # Indicar en la variable url, el enlace de la página a scrapear.
-    url_1 = f"https://www.imdb.com/search/title/?groups=top_1000&sort=user_rating,desc&count=100&start={pagina_actual}&ref_=adv_nxt"
+    
+    url_1 = f"https://www.imdb.com/search/title/?groups=top_1000&sort=user_rating,desc&count=100&start={page_actual}&ref_=adv_nxt"
     url_actual = f"{url_1}{page_actual}"
     page = requests.get(url_actual)
     soup = BeautifulSoup(page.content, 'html.parser')

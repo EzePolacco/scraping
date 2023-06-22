@@ -1,10 +1,14 @@
+# IMPORT LIBRARIES
+
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 ------------------------------
+
 page_total = 901
 page_actual = 1
 
+# LISTS CREATED TO STORE TRACKED INFORMATION
 movie_name = []
 year_release = []
 runtime = []
@@ -23,7 +27,7 @@ while page_actual <= page_total:
     soup = BeautifulSoup(page.content, 'html.parser')
     all_movies = soup.find_all('div', attrs={'class':'lister-item mode-advanced'})
 
-
+    # LOOP TO SCROLL THE PAGE AND COLLECT THE INFO
     for movie in all_movies:
             name = movie.h3.a.text
             movie_name.append(name)
@@ -44,7 +48,7 @@ while page_actual <= page_total:
     page_actual += 100
 
             
-
+# CREATE A DATAFRAME
 movies_imdb2 = pd.DataFrame(
 
     {
@@ -61,3 +65,6 @@ movies_imdb2 = pd.DataFrame(
 
 
 movies_imdb2
+
+# EXPORT TO EXCEL FILE
+movies_imdb2.to_excel('movies_imdb2.xlsx')
